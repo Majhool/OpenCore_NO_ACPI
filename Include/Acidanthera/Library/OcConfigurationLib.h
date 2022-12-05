@@ -346,7 +346,7 @@ OC_DECLARE (OC_MISC_BLESS_ARRAY)
   _(BOOLEAN                     , PickerAudioAssist           ,     , FALSE                               , ())                   \
   _(BOOLEAN                     , HideAuxiliary               ,     , FALSE                               , ())                   \
   _(BOOLEAN                     , PollAppleHotKeys            ,     , FALSE                               , ())                   \
-  _(BOOLEAN                     , SkipCustomEntryCheck        ,     , FALSE                               , ())
+  _(BOOLEAN                     , SkipCustomEntryCheck        ,     , FALSE                               , ())                   \
   _(OC_STRING                   , ShowPicker                  ,     , OC_STRING_CONSTR ("Always", _, __)  , OC_DESTR (OC_STRING) )
 OC_DECLARE (OC_MISC_BOOT)
 
