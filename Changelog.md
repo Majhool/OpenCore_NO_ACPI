@@ -1,5 +1,14 @@
 OpenCore Changelog
 ==================
+#### v0.9.2
+- Added `DisableIoMapperMapping` quirk, thx @CaseySJ
+- Fixed disabling single user mode when Apple Secure Boot is enabled
+- Improved guard checks for `GopBurstMode` on systems where it's not needed
+- Improved compatibility of `GopBurstMode` with some very non-standard GOP implementations
+- Fixed possible hang with `GopBurstMode` enabled on DEBUG builds
+- Enabled `GopBurstMode` even with natively supported cards, in EnableGop firmware driver
+- Fixed inability to patch force-injected kexts
+
 #### v0.9.1
 - Fixed long comment printing for ACPI patches, thx @corpnewt
 - Added sample config for VS Code source level debugging with `gdb`
