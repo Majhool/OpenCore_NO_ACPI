@@ -5,6 +5,7 @@
 
 #include <Uefi.h>
 #include <Library/BaseMemoryLib.h>
+#include <Library/PhaseMemoryAllocationLib.h>
 #include <Library/MemoryAllocationLib.h>
 #include <Library/DebugLib.h>
 #include <Library/UefiLib.h>
@@ -16,6 +17,9 @@
 #ifdef WIN32
   #include <malloc.h>
 #endif // WIN32
+
+GLOBAL_REMOVE_IF_UNREFERENCED CONST EFI_MEMORY_TYPE  gPhaseDefaultDataType = EfiBootServicesData;
+GLOBAL_REMOVE_IF_UNREFERENCED CONST EFI_MEMORY_TYPE  gPhaseDefaultCodeType = EfiBootServicesCode;
 
 //
 // Limits single pool allocation size to 512MB by default.
@@ -152,8 +156,9 @@ ScanMem16 (
 
 VOID *
 EFIAPI
-AllocatePool (
-  IN  UINTN  AllocationSize
+PhaseAllocatePool (
+  IN EFI_MEMORY_TYPE  MemoryType,
+  IN UINTN            AllocationSize
   )
 {
   VOID   *Buffer;
@@ -201,72 +206,22 @@ AllocatePool (
   return Buffer;
 }
 
-VOID *
-EFIAPI
-AllocateCopyPool (
-  IN  UINTN       AllocationSize,
-  IN  CONST VOID  *Buffer
+STATIC
+EFI_STATUS
+InternalAllocatePagesAlign (
+  IN     EFI_ALLOCATE_TYPE     Type,
+  IN     EFI_MEMORY_TYPE       MemoryType,
+  IN     UINTN                 Pages,
+  IN OUT EFI_PHYSICAL_ADDRESS  *Memory,
+  IN     UINT32                Alignment
   )
 {
-  VOID  *Memory;
-
-  ASSERT (Buffer != NULL);
-
-  Memory = AllocatePool (AllocationSize);
-
-  if (Memory != NULL) {
-    Memory = CopyMem (Memory, Buffer, AllocationSize);
-  }
-
-  return Memory;
-}
-
-VOID *
-EFIAPI
-AllocateZeroPool (
-  IN  UINTN  AllocationSize
-  )
-{
-  VOID  *Memory;
-
-  Memory = AllocatePool (AllocationSize);
-
-  if (Memory != NULL) {
-    Memory = ZeroMem (Memory, AllocationSize);
-  }
-
-  return Memory;
-}
-
-VOID *
-ReallocatePool (
-  IN  UINTN  OldSize,
-  IN  UINTN  NewSize,
-  IN  VOID   *OldBuffer  OPTIONAL
-  )
-{
-  VOID  *NewBuffer;
-
-  NewBuffer = AllocateZeroPool (NewSize);
-
-  if ((NewBuffer != NULL) && (OldBuffer != NULL)) {
-    CopyMem (NewBuffer, OldBuffer, MIN (OldSize, NewSize));
-    FreePool (OldBuffer);
-  }
-
-  return NewBuffer;
-}
-
-VOID *
-EFIAPI
-AllocatePages (
-  IN UINTN  Pages
-  )
-{
-  VOID   *Memory;
+  VOID   *Buffer;
   UINTN  RequestedAllocationSize;
 
-  Memory                  = NULL;
+  ASSERT (Type == AllocateAnyPages);
+
+  Buffer                  = NULL;
   RequestedAllocationSize = Pages * EFI_PAGE_SIZE;
 
   if (((mPageAllocationMask & (1ULL << mPageAllocationIndex)) != 0) &&
@@ -277,15 +232,15 @@ AllocatePages (
     //
     if (RequestedAllocationSize <= mPoolAllocationSizeLimit) {
  #ifdef _WIN32
-      Memory = _aligned_malloc (RequestedAllocationSize, EFI_PAGE_SIZE);
+      Buffer = _aligned_malloc (RequestedAllocationSize, Alignment);
  #else // !_WIN32
-      Memory = NULL;
+      Buffer = NULL;
       INTN  RetVal;
 
-      RetVal = posix_memalign (&Memory, EFI_PAGE_SIZE, RequestedAllocationSize);
+      RetVal = posix_memalign (&Buffer, Alignment, RequestedAllocationSize);
       if (RetVal != 0) {
         DEBUG ((DEBUG_ERROR, "posix_memalign returns error %d\n", RetVal));
-        Memory = NULL;
+        Buffer = NULL;
       }
 
  #endif // _WIN32
@@ -299,19 +254,41 @@ AllocatePages (
     DEBUG_PAGE,
     "UMEM: Allocating %u pages at 0x%p\n",
     (UINT32)Pages,
-    Memory
+    Buffer
     ));
 
-  if (Memory != NULL) {
-    mPageAllocations += Pages;
+  if (Buffer == NULL) {
+    return EFI_NOT_FOUND;
   }
 
-  return Memory;
+  mPageAllocations += Pages;
+
+  *Memory = (UINTN)Buffer;
+
+  return EFI_SUCCESS;
+}
+
+EFI_STATUS
+EFIAPI
+PhaseAllocatePages (
+  IN     EFI_ALLOCATE_TYPE     Type,
+  IN     EFI_MEMORY_TYPE       MemoryType,
+  IN     UINTN                 Pages,
+  IN OUT EFI_PHYSICAL_ADDRESS  *Memory
+  )
+{
+  return InternalAllocatePagesAlign (
+           Type,
+           MemoryType,
+           Pages,
+           Memory,
+           EFI_PAGE_SIZE
+           );
 }
 
 VOID
 EFIAPI
-FreePool (
+PhaseFreePool (
   IN VOID  *Buffer
   )
 {
@@ -339,14 +316,17 @@ FreePool (
   free (Buffer);
 }
 
-VOID
+EFI_STATUS
 EFIAPI
-FreePages (
-  IN VOID   *Buffer,
-  IN UINTN  Pages
+PhaseFreePages (
+  IN EFI_PHYSICAL_ADDRESS  Memory,
+  IN UINTN                 Pages
   )
 {
+  VOID   *Buffer;
   UINTN  BytesToFree;
+
+  Buffer = (VOID *)(UINTN)Memory;
 
   ASSERT (Buffer != NULL);
 
@@ -383,7 +363,46 @@ FreePages (
     abort ();
   }
 
+ #ifdef _WIN32
+  _aligned_free (Buffer);
+ #else
   free (Buffer);
+ #endif
+
+  return EFI_SUCCESS;
+}
+
+VOID *
+InternalAllocateAlignedPages (
+  IN EFI_MEMORY_TYPE  MemoryType,
+  IN UINTN            Pages,
+  IN UINTN            Alignment
+  )
+{
+  EFI_STATUS            Status;
+  EFI_PHYSICAL_ADDRESS  Memory;
+
+  Status = InternalAllocatePagesAlign (
+             AllocateAnyPages,
+             MemoryType,
+             Pages,
+             &Memory,
+             EFI_PAGE_SIZE
+             );
+  if (EFI_ERROR (Status)) {
+    return NULL;
+  }
+
+  return (VOID *)(UINTN)Memory;
+}
+
+VOID
+InternalFreeAlignedPages (
+  IN VOID   *Buffer,
+  IN UINTN  Pages
+  )
+{
+  PhaseFreePages ((UINTN)Buffer, Pages);
 }
 
 GUID *

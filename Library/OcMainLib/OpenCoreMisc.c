@@ -215,6 +215,21 @@ ProduceDebugReport (
 
   DEBUG ((DEBUG_INFO, "OC: PCIInfo dumping - %r\n", Status));
 
+  Status = OcSafeFileOpen (
+             SysReport,
+             &SubReport,
+             L"GOP",
+             EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE | EFI_FILE_MODE_CREATE,
+             EFI_FILE_DIRECTORY
+             );
+  if (!EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_INFO, "OC: Dumping GOPInfo for report...\n"));
+    Status = OcGopInfoDump (SubReport);
+    SubReport->Close (SubReport);
+  }
+
+  DEBUG ((DEBUG_INFO, "OC: GOPInfo dumping - %r\n", Status));
+
   SysReport->Close (SysReport);
   Fs->Close (Fs);
 
@@ -838,7 +853,7 @@ OcMiscBoot (
   // Due to the file size and sanity guarantees OcXmlLib makes,
   // adding Counts cannot overflow.
   //
-  if (!OcOverflowMulAddUN (
+  if (!BaseOverflowMulAddUN (
          sizeof (OC_PICKER_ENTRY),
          Config->Misc.Entries.Count + Config->Misc.Tools.Count,
          sizeof (OC_PICKER_CONTEXT),
@@ -856,7 +871,7 @@ OcMiscBoot (
   }
 
   if (Config->Misc.BlessOverride.Count > 0) {
-    if (!OcOverflowMulUN (
+    if (!BaseOverflowMulUN (
            Config->Misc.BlessOverride.Count,
            sizeof (*BlessOverride),
            &BlessOverrideSize

@@ -163,15 +163,15 @@ ifneq ($(STANDALONE),1)
 	#
 	# UDK implementations.
 	#
-	OBJS    += UefiLib.o UefiLibPrint.o CpuDeadLoop.o BaseDebugPrintErrorLevelLib.o DebugLib.o PrintLib.o PrintLibInternal.o String.o SafeString.o SwapBytes16.o SwapBytes32.o LinkedList.o HighBitSet32.o HighBitSet64.o MtrrLib.o GetPowerOfTwo32.o GetPowerOfTwo64.o Cpu.o BmpSupportLib.o SafeIntLib.o X86GetInterruptState.o PciLib.o PciExpressLib.o DevicePathUtilities.o UefiDevicePathLib.o DevicePathToText.o DevicePathFromText.o BitField.o CheckSum.o UefiSortLib.o QuickSort.o UserFile.o
+	OBJS    += UefiLib.o UefiLibPrint.o CpuDeadLoop.o BaseDebugPrintErrorLevelLib.o DebugLib.o PrintLib.o PrintLibInternal.o String.o SafeString.o SwapBytes16.o SwapBytes32.o LinkedList.o HighBitSet32.o HighBitSet64.o MtrrLib.o GetPowerOfTwo32.o GetPowerOfTwo64.o Cpu.o BmpSupportLib.o SafeIntLib.o X86GetInterruptState.o PciLib.o PciExpressLib.o DevicePathUtilities.o UefiDevicePathLib.o DevicePathToText.o DevicePathFromText.o BitField.o CheckSum.o UefiSortLib.o QuickSort.o UserFile.o CommonMemoryAllocationLib.o CommonMemoryAllocationLibEx.o BaseMemoryProfileLibNull.o
 	#
 	# Customised/Simplified implementations at userspace level.
 	#
 	OBJS    += UserBaseMemoryLib.o UserBootServices.o UserGlobalVar.o UserMath.o UserMisc.o UserPcd.o UserUnicodeCollation.o UserOcDummy.o
 	#
-	# OcGuardLib targets.
+	# BaseOverflowLib targets.
 	#
-	OBJS    += BitOverflow.o NativeOverflow.o TripleOverflow.o Alignment.o
+	OBJS    += BaseMath.o BaseBitOverflow.o BaseNativeOverflow.o BaseTripleOverflow.o BaseAlignment.o
 	#
 	# OcSerializeLib targets.
 	#
@@ -207,7 +207,7 @@ ifneq ($(STANDALONE),1)
 	#
 	# OcMiscLib targets.
 	#
-	OBJS    += Math.o ProtocolSupport.o DataPatcher.o PlatformInfo.o
+	OBJS    += ProtocolSupport.o DataPatcher.o PlatformInfo.o
 	#
 	# OcAppleKernelLib targets.
 	#
@@ -231,14 +231,16 @@ ifneq ($(STANDALONE),1)
 				$(UDK_PATH)/MdePkg/Library/BaseDebugPrintErrorLevelLib:$\
 				$(UDK_PATH)/MdePkg/Library/UefiDebugLibConOut:$\
 				$(UDK_PATH)/MdePkg/Library/BasePrintLib:$\
+				$(UDK_PATH)/MdePkg/Library/BaseOverflowLib:$\
 				$(UDK_PATH)/MdePkg/Library/BaseSafeIntLib:$\
 				$(UDK_PATH)/MdePkg/Library/BasePciLibPciExpress:$\
 				$(UDK_PATH)/MdePkg/Library/BasePciExpressLib:$\
 				$(UDK_PATH)/MdePkg/Library/UefiDevicePathLib:$\
 				$(UDK_PATH)/MdeModulePkg/Library/BaseBmpSupportLib:$\
+				$(UDK_PATH)/MdeModulePkg/Library/BaseMemoryProfileLibNull:$\
+				$(UDK_PATH)/MdeModulePkg/Library/CommonMemoryAllocationLib:$\
 				$(UDK_PATH)/MdeModulePkg/Library/UefiSortLib:$\
 				$(UDK_PATH)/UefiCpuPkg/Library/MtrrLib:$\
-				$(OC_USER)/Library/OcGuardLib:$\
 				$(OC_USER)/Library/OcSerializeLib:$\
 				$(OC_USER)/Library/OcTemplateLib:$\
 				$(OC_USER)/Library/OcXmlLib:$\
