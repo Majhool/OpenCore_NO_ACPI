@@ -36,25 +36,34 @@ typedef enum {
 /**
   Special commands sent to Builtin text renderer through TestString.
 **/
-#define OC_CONSOLE_MARK_CONTROLLED    L"MarkControlled"
+/**
+  Extension to notify OpenCore builtin renderer that any text it may have produced
+  on screen is mixed with graphics which it did not control.
+**/
 #define OC_CONSOLE_MARK_UNCONTROLLED  L"MarkUncontrolled"
 
 /**
   Configure console control protocol with given options.
 
+  @param[in] InitialMode              Initial mode to use, or set max. value to use existing mode.
   @param[in] Renderer                 Renderer to use.
   @param[in] IgnoreTextOutput         Skip console output in text mode.
   @param[in] SanitiseClearScreen      Workaround ClearScreen breaking resolution.
   @param[in] ClearScreenOnModeSwitch  Clear graphic screen when switching to text mode.
   @param[in] ReplaceTabWithSpace      Replace invisible tab characters with spaces in OutputString.
+  @param[in] Width                    Width to set - applies to builtin renderer only.
+  @param[in] Height                   Height to set - applies to builtin renderer only.
 **/
 VOID
 OcSetupConsole (
-  IN OC_CONSOLE_RENDERER  Renderer,
-  IN BOOLEAN              IgnoreTextOutput,
-  IN BOOLEAN              SanitiseClearScreen,
-  IN BOOLEAN              ClearScreenOnModeSwitch,
-  IN BOOLEAN              ReplaceTabWithSpace
+  IN EFI_CONSOLE_CONTROL_SCREEN_MODE  InitialMode,
+  IN OC_CONSOLE_RENDERER              Renderer,
+  IN BOOLEAN                          IgnoreTextOutput,
+  IN BOOLEAN                          SanitiseClearScreen,
+  IN BOOLEAN                          ClearScreenOnModeSwitch,
+  IN BOOLEAN                          ReplaceTabWithSpace,
+  IN UINT32                           Width,
+  IN UINT32                           Height
   );
 
 /**
@@ -67,6 +76,16 @@ OcSetupConsole (
 EFI_CONSOLE_CONTROL_SCREEN_MODE
 OcConsoleControlSetMode (
   IN EFI_CONSOLE_CONTROL_SCREEN_MODE  Mode
+  );
+
+/**
+  Get existing console control screen mode, default to text if no existing console control protocol.
+
+  @retval existing console control mode.
+**/
+EFI_CONSOLE_CONTROL_SCREEN_MODE
+OcConsoleControlGetMode (
+  VOID
   );
 
 /**

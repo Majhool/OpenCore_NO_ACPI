@@ -386,19 +386,27 @@ OcSetConsoleMode (
 
 VOID
 OcSetupConsole (
-  IN OC_CONSOLE_RENDERER  Renderer,
-  IN BOOLEAN              IgnoreTextOutput,
-  IN BOOLEAN              SanitiseClearScreen,
-  IN BOOLEAN              ClearScreenOnModeSwitch,
-  IN BOOLEAN              ReplaceTabWithSpace
+  IN EFI_CONSOLE_CONTROL_SCREEN_MODE  InitialMode,
+  IN OC_CONSOLE_RENDERER              Renderer,
+  IN BOOLEAN                          IgnoreTextOutput,
+  IN BOOLEAN                          SanitiseClearScreen,
+  IN BOOLEAN                          ClearScreenOnModeSwitch,
+  IN BOOLEAN                          ReplaceTabWithSpace,
+  IN UINT32                           Width,
+  IN UINT32                           Height
   )
 {
+  if (InitialMode == EfiConsoleControlScreenMaxValue) {
+    InitialMode = OcConsoleControlGetMode ();
+  }
+
   if (Renderer == OcConsoleRendererBuiltinGraphics) {
-    OcUseBuiltinTextOutput (EfiConsoleControlScreenGraphics);
+    OcUseBuiltinTextOutput (InitialMode, EfiConsoleControlScreenGraphics, Width, Height);
   } else if (Renderer == OcConsoleRendererBuiltinText) {
-    OcUseBuiltinTextOutput (EfiConsoleControlScreenText);
+    OcUseBuiltinTextOutput (InitialMode, EfiConsoleControlScreenText, Width, Height);
   } else {
     OcUseSystemTextOutput (
+      InitialMode,
       Renderer,
       IgnoreTextOutput,
       SanitiseClearScreen,

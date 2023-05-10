@@ -55,11 +55,14 @@ LoadUefiOutputSupport (
   }
 
   OcSetupConsole (
+    EfiConsoleControlScreenGraphics,
     OcConsoleRendererBuiltinGraphics,
     FALSE,
     FALSE,
     FALSE,
-    FALSE
+    FALSE,
+    0,
+    0
     );
 
   return EFI_SUCCESS;
