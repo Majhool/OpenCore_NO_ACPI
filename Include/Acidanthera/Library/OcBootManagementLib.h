@@ -44,13 +44,13 @@ typedef struct OC_HOTKEY_CONTEXT_ OC_HOTKEY_CONTEXT;
 /**
   Default strings for use in the interfaces.
 **/
-#define OC_MENU_BOOT_MENU             L"OpenCore 启动菜单"
+#define OC_MENU_BOOT_MENU             L"OpenCore Boot Menu"
 #define OC_MENU_UEFI_SHELL_ENTRY      L"UEFI Shell"
 #define OC_MENU_PASSWORD_REQUEST      L"Password: "
 #define OC_MENU_PASSWORD_PROCESSING   L"Verifying password..."
 #define OC_MENU_PASSWORD_RETRY_LIMIT  L"Password retry limit exceeded."
-#define OC_MENU_CHOOSE_OS             L"请选择您要启动的系统:        "
-#define OC_MENU_SHOW_AUXILIARY        L"显示辅助菜单"
+#define OC_MENU_CHOOSE_OS             L"Choose the Operating System: "
+#define OC_MENU_SHOW_AUXILIARY        L"Show Auxiliary"
 #define OC_MENU_RELOADING             L"Reloading"
 #define OC_MENU_TIMEOUT               L"Timeout"
 #define OC_MENU_OK                    L"OK"
