@@ -295,9 +295,9 @@ UpdateTabContext (
     Code[0] = IsEntering ? L'[' : '|';
     gST->ConOut->OutputString (gST->ConOut, Code);
     if (TabFocus == TAB_SHUTDOWN) {
-      gST->ConOut->OutputString (gST->ConOut, L"关机");
+      gST->ConOut->OutputString (gST->ConOut, L"Shutdown");
     } else {
-      gST->ConOut->OutputString (gST->ConOut, L"重启");
+      gST->ConOut->OutputString (gST->ConOut, L"Reset");
     }
 
     Code[0] = IsEntering ? L']' : '|';
@@ -487,8 +487,6 @@ OcShowSimpleBootMenu (
         }
 
         gST->ConOut->OutputString (gST->ConOut, L")");
-      gST->ConOut->OutputString (gST->ConOut, L"\r\n\r\n");
-      gST->ConOut->OutputString (gST->ConOut, L"                OPENCORE-MOD启动菜单");
       }
 
       DEBUG_CODE_BEGIN ();
@@ -496,7 +494,7 @@ OcShowSimpleBootMenu (
         //
         // Fixed part of milliseconds display
         //
-        gST->ConOut->OutputString (gST->ConOut, L" [系统启动时间 : ");
+        gST->ConOut->OutputString (gST->ConOut, L" [System uptime: ");
         MillisColumn = gST->ConOut->Mode->CursorColumn;
         DisplaySystemMs ();
       }
@@ -539,10 +537,10 @@ OcShowSimpleBootMenu (
         ShutdownRestartRow = gST->ConOut->Mode->CursorRow;
         gST->ConOut->OutputString (gST->ConOut, L" ");
         RestartColumn = gST->ConOut->Mode->CursorColumn;
-        gST->ConOut->OutputString (gST->ConOut, L"|重启|");
+        gST->ConOut->OutputString (gST->ConOut, L"|Restart|");
         gST->ConOut->OutputString (gST->ConOut, L"  ");
         ShutdownColumn = gST->ConOut->Mode->CursorColumn;
-        gST->ConOut->OutputString (gST->ConOut, L"|关机|");
+        gST->ConOut->OutputString (gST->ConOut, L"|Shutdown|");
 
         gST->ConOut->OutputString (gST->ConOut, L"\r\n");
       } else {
@@ -555,7 +553,6 @@ OcShowSimpleBootMenu (
       }
 
       gST->ConOut->OutputString (gST->ConOut, L"\r\n");
-      gST->ConOut->OutputString (gST->ConOut, L"欢迎使用MOD-OC,");
       gST->ConOut->OutputString (gST->ConOut, OC_MENU_CHOOSE_OS);
 
       mStatusRow    = gST->ConOut->Mode->CursorRow;

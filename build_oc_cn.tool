@@ -26,6 +26,7 @@ buildutil() {
     "TestMacho"
     "TestMp3"
     "TestExt4Dxe"
+    "TestFatDxe"
     "TestNtfsDxe"
     "TestPeCoff"
     "TestProcessKernel"
@@ -135,6 +136,7 @@ package() {
       "CsrUtil.efi"
       "GopStop.efi"
       "KeyTester.efi"
+      "ListPartitions.efi"
       "MmapDump.efi"
       "ResetSystem.efi"
       "RtcRw.efi"
@@ -276,6 +278,16 @@ package() {
   for file in "${helpFiles[@]}"; do
     cp "${selfdir}/Staging/EnableGop/${file}" "${dstdir}/Utilities/EnableGop"/ || exit 1
   done
+
+  # Provide EDK-II BaseTools.
+  mkdir "${dstdir}/Utilities/BaseTools" || exit 1
+  if [ "$(unamer)" = "Windows" ]; then
+    cp "${selfdir}/UDK/BaseTools/Bin/Win32/EfiRom.exe" "${dstdir}/Utilities/BaseTools" || exit 1
+    cp "${selfdir}/UDK/BaseTools/Bin/Win32/GenFfs.exe" "${dstdir}/Utilities/BaseTools" || exit 1
+  else
+    cp "${selfdir}/UDK/BaseTools/Source/C/bin/EfiRom" "${dstdir}/Utilities/BaseTools" || exit 1
+    cp "${selfdir}/UDK/BaseTools/Source/C/bin/GenFfs" "${dstdir}/Utilities/BaseTools" || exit 1
+  fi
 
   utils=(
     "ACPIe"
