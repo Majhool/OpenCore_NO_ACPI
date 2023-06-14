@@ -1032,7 +1032,7 @@ OcLoadUefiSupport (
       );
   }
 
-  OcLoadUefiOutputSupport (Config);
+  OcLoadUefiOutputSupport (Storage, Config);
 
   OcLoadUefiAudioSupport (Storage, Config);
 
