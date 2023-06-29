@@ -196,11 +196,11 @@ ValidateInstanceIdentifier (
   ErrorCount = 0;
 
   if (AsciiStrSize (InstanceIdentifier) > OC_MAX_INSTANCE_IDENTIFIER_SIZE) {
-    DEBUG ((DEBUG_WARN, "Misc->Boot->InstanceIdentifier cannot be longer than %d bytes!\n", OC_MAX_INSTANCE_IDENTIFIER_SIZE));
+    DEBUG ((DEBUG_WARN, "Misc->Boot->InstanceIdentifier 不能超过%d字节!\n", OC_MAX_INSTANCE_IDENTIFIER_SIZE));
     ++ErrorCount;
   } else {
     if (AsciiStrStr (InstanceIdentifier, ",") != NULL) {
-      DEBUG ((DEBUG_WARN, "Misc->Boot->InstanceIdentifier cannot contain comma (,)!\n"));
+      DEBUG ((DEBUG_WARN, "Misc->Boot->InstanceIdentifier 不能包含逗号（,）!\n"));
       ++ErrorCount;
     }
 
@@ -211,7 +211,7 @@ ValidateInstanceIdentifier (
     AsciiStrnCpyS (InstanceIdentifierCopy, OC_MAX_INSTANCE_IDENTIFIER_SIZE, InstanceIdentifier, Length);
     AsciiFilterString (InstanceIdentifierCopy, TRUE);
     if (OcAsciiStrniCmp (InstanceIdentifierCopy, InstanceIdentifier, Length) != 0) {
-      DEBUG ((DEBUG_WARN, "Misc->Boot->InstanceIdentifier cannot contain CR, LF, TAB or any other non-ASCII characters!\n"));
+      DEBUG ((DEBUG_WARN, "Misc->Boot->InstanceIdentifier 不能包含CR、LF、TAB或任何其他非ascii字符!\n"));
       ++ErrorCount;
     }
   }
