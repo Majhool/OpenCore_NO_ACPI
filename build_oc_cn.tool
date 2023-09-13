@@ -247,7 +247,7 @@ package() {
     "FindSerialPort"
     "macrecovery"
     "kpdescribe"
-    "ShimToCert"
+    "ShimUtils"
     )
   for utilScpt in "${utilScpts[@]}"; do
     cp -r "${selfdir}/Utilities/${utilScpt}" "${dstdir}/Utilities"/ || exit 1
@@ -271,14 +271,22 @@ package() {
   for arch in "${ARCHS[@]}"; do
     local tgt
     local booter
+    local booter_blockio
     tgt="$(basename "$(pwd)")"
     booter="$(pwd)/../../OpenDuetPkg/${tgt}/${arch}/boot"
+    booter_blockio="$(pwd)/../../OpenDuetPkg/${tgt}/${arch}/boot-blockio"
 
     if [ -f "${booter}" ]; then
       echo "从 ${booter} 拷贝OpenDuetPkg启动文件..."
       cp "${booter}" "${dstdir}/Utilities/LegacyBoot/boot${arch}" || exit 1
     else
       echo "在${booter}找不到OpenDuetPkg!"
+    fi
+    if [ -f "${booter_blockio}" ]; then
+      echo "从${booter_blockio}复制OpenDuetPkg BlockIO引导文件..."
+      cp "${booter_blockio}" "${dstdir}/Utilities/LegacyBoot/boot${arch}-blockio" || exit 1
+    else
+      echo "在${booter_blockio}上找不到OpenDuetPkg BlockIO!"
     fi
   done
 
@@ -376,7 +384,7 @@ export SELFPKG
 export NO_ARCHIVES
 export DISCARD_PACKAGES
 
-src=$(curl -Lfs https://gitee.com/btwise/ocbuild/raw/master/efibuild.sh) && eval "$src" || exit 1
+src=$(curl -LfsS https://gitee.com/btwise/ocbuild/raw/master/efibuild.sh) && eval "$src" || exit 1
 
 cd Utilities/ocvalidate || exit 1
 ocv_tool=""

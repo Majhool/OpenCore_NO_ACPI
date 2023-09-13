@@ -247,7 +247,7 @@ package() {
     "FindSerialPort"
     "macrecovery"
     "kpdescribe"
-    "ShimToCert"
+    "ShimUtils"
     )
   for utilScpt in "${utilScpts[@]}"; do
     cp -r "${selfdir}/Utilities/${utilScpt}" "${dstdir}/Utilities"/ || exit 1
@@ -271,14 +271,22 @@ package() {
   for arch in "${ARCHS[@]}"; do
     local tgt
     local booter
+    local booter_blockio
     tgt="$(basename "$(pwd)")"
     booter="$(pwd)/../../OpenDuetPkg/${tgt}/${arch}/boot"
+    booter_blockio="$(pwd)/../../OpenDuetPkg/${tgt}/${arch}/boot-blockio"
 
     if [ -f "${booter}" ]; then
       echo "Copying OpenDuetPkg boot file from ${booter}..."
       cp "${booter}" "${dstdir}/Utilities/LegacyBoot/boot${arch}" || exit 1
     else
-      echo "Failed to find OpenDuetPkg at ${booter}!"
+      echo "No OpenDuetPkg found in ${booter}!"
+    fi
+    if [ -f "${booter_blockio}" ]; then
+      echo "Copying OpenDuetPkg BlockIO boot file from ${booter_blockio}..."
+      cp "${booter_blockio}" "${dstdir}/Utilities/LegacyBoot/boot${arch}-blockio" || exit 1
+    else
+      echo "Failed to find OpenDuetPkg BlockIO at ${booter_blockio}!"
     fi
   done
 
@@ -376,7 +384,7 @@ export SELFPKG
 export NO_ARCHIVES
 export DISCARD_PACKAGES
 
-src=$(curl -Lfs https://raw.githubusercontent.com/acidanthera/ocbuild/master/efibuild.sh) && eval "$src" || exit 1
+src=$(curl -LfsS https://raw.githubusercontent.com/acidanthera/ocbuild/master/efibuild.sh) && eval "$src" || exit 1
 
 cd Utilities/ocvalidate || exit 1
 ocv_tool=""
