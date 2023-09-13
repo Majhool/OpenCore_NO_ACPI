@@ -199,6 +199,7 @@ package() {
       "NvmExpressDxe.efi"
       "OpenCanopy.efi"
       "OpenHfsPlus.efi"
+      "OpenLegacyBoot.efi"
       "OpenLinuxBoot.efi"
       "OpenNtfsDxe.efi"
       "OpenPartitionDxe.efi"
@@ -246,7 +247,7 @@ package() {
     "FindSerialPort"
     "macrecovery"
     "kpdescribe"
-    "ShimToCert"
+    "ShimUtils"
     )
   for utilScpt in "${utilScpts[@]}"; do
     cp -r "${selfdir}/Utilities/${utilScpt}" "${dstdir}/Utilities"/ || exit 1

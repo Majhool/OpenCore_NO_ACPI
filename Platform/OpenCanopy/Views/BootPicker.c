@@ -1538,6 +1538,14 @@ BootPickerEntriesSet (
         }
 
         break;
+      case OC_BOOT_EXTERNAL_SYSTEM:
+        if (OcAsciiStriStr (Entry->Flavour, OC_FLAVOUR_WINDOWS) != NULL) {
+          Status = CopyLabel (&VolumeEntry->Label, &GuiContext->Labels[LABEL_WINDOWS]);
+        } else {
+          Status = CopyLabel (&VolumeEntry->Label, &GuiContext->Labels[LABEL_OTHER]);
+        }
+
+        break;
       case OC_BOOT_UNKNOWN:
         Status = CopyLabel (&VolumeEntry->Label, &GuiContext->Labels[LABEL_GENERIC_HDD]);
         break;
