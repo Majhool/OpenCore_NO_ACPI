@@ -2190,7 +2190,7 @@ OcGetBootEntryFileFromDevicePath (
   IN  UINT32                    MaxFileSize,
   IN  UINT32                    MinFileSize,
   OUT VOID                      **FileData,
-  OUT UINT32                    *DataLength,
+  OUT UINT32                    *DataLength OPTIONAL,
   IN  BOOLEAN                   SearchAtLeaf,
   IN  BOOLEAN                   SearchAtRoot
   );
@@ -2222,7 +2222,7 @@ OcGetBootEntryFile (
   IN  UINT32         MaxFileSize,
   IN  UINT32         MinFileSize,
   OUT VOID           **FileData,
-  OUT UINT32         *DataLength,
+  OUT UINT32         *DataLength OPTIONAL,
   IN  BOOLEAN        SearchAtLeaf,
   IN  BOOLEAN        SearchAtRoot
   );
