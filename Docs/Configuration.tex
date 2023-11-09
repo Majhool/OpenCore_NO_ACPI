@@ -94,7 +94,7 @@
 
        \vspace{0.2in}
 
-       Reference Manual (0.9.6)
+       Reference Manual (0.9.7)
 
        \vspace{0.2in}
 
@@ -1609,6 +1609,40 @@ To view their current state, use the \texttt{pmset -g} command in Terminal.
   \emph{Note}: This quirk may potentially weaken firmware security. Please use
   \texttt{RebuildAppleMemoryMap} if the firmware supports memory attributes table (MAT).
   Refer to the \texttt{OCABC: MAT support is 1/0} log entry to determine whether MAT is supported.
+
+\item
+  \texttt{FixupAppleEfiImages}\\
+  \textbf{Type}: \texttt{plist\ boolean}\\
+  \textbf{Failsafe}: \texttt{false}\\
+  \textbf{Description}: Fix errors in early Mac OS X boot.efi images.
+
+  Modern secure PE loaders will refuse to load \texttt{boot.efi} images from
+  macOS 10.4 to 10.12 due to these files containing \texttt{W\^{}X} errors
+  (in all versions) and illegal overlapping sections (in 10.4 and 10.5 32-bit
+  versions only).
+
+  This quirk detects these issues and pre-processes such images in memory,
+  so that a modern loader will accept them.
+
+  Pre-processing in memory is incompatible with secure boot, as the image loaded
+  is not the image on disk, so you cannot sign files which are loaded in this way
+  based on their original disk image contents.
+  Certain firmware will offer to register the hash of new, unknown images - this would
+  still work. On the other hand, it is not particularly realistic to want to
+  start these early, insecure images with secure boot anyway.
+
+  \emph{Note 1}: When enabled, this quirk is applied to all Apple-specific Fat
+  binaries (32-bit and 64-bit versions in one image), and to any other
+  Apple-signed boot images that are not being processed for Apple secure boot.
+
+  \emph{Note 2}: The quirk is never applied during the Apple secure boot path for
+  newer macOS. The Apple secure boot path includes its own separate mitigations
+  for \texttt{boot.efi} \texttt{W\^{}X} issues.
+
+  \emph{Note 3}: This quirk is needed for macOS 10.4 to 10.12 (and
+  higher, if Apple secure boot is not enabled), but only when the firmware
+  itself includes a modern, more secure PE COFF image loader. This applies to
+  current builds of OpenDuet, and to OVMF if built from audk source code.
 
 \item
   \texttt{ForceBooterSignature}\\

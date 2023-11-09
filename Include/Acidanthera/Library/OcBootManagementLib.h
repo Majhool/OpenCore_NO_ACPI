@@ -1818,7 +1818,8 @@ OcRegisterBootstrapBootOption (
 **/
 VOID
 OcImageLoaderInit (
-  IN     CONST BOOLEAN  ProtectUefiServices
+  IN     CONST BOOLEAN  ProtectUefiServices,
+  IN     CONST BOOLEAN  FixupAppleEfiImages
   );
 
 /**
