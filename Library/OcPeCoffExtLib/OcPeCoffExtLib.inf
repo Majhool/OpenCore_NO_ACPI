@@ -31,14 +31,14 @@
 [Sources]
   OcPeCoffExtInternal.h
   OcPeCoffExtLib.c
-  OcPeCoffFixup.c
+  OcPeCoffFixupInit.c
 
 [Packages]
   MdePkg/MdePkg.dec
   OpenCorePkg/OpenCorePkg.dec
 
 [LibraryClasses]
-  UefiImageLib
+  PeCoffLib2
   UefiRuntimeServicesTableLib
   UefiBootServicesTableLib
   MemoryAllocationLib
