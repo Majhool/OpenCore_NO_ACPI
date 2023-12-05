@@ -25,13 +25,15 @@ imgbuild() {
   LzmaCompress -e -o "${BUILD_DIR}/FV/DUETEFIMAINFVBLOCKIO${arch}.z" \
     "${BUILD_DIR}/FV/DUETEFIMAINFVBLOCKIO${arch}.Fv" || exit 1
 
-  echo "Compressing DxeCore.efi..."
+  echo "Compressing DxeCoreUe.raw..."
+  ImageTool GenImage -c UE -o "${BUILD_DIR_ARCH}/DxeCoreUe.raw" "${BUILD_DIR_ARCH}/DxeCore.efi"
   LzmaCompress -e -o "${BUILD_DIR}/FV/DxeMain${arch}.z" \
-    "${BUILD_DIR_ARCH}/DxeCore.efi" || exit 1
+    "${BUILD_DIR_ARCH}/DxeCoreUe.raw" || exit 1
 
-  echo "Compressing DxeIpl.efi..."
+  echo "Compressing DxeIplUe.raw..."
+  ImageTool GenImage -c UE -o "${BUILD_DIR_ARCH}/DxeIplUe.raw" "${BUILD_DIR_ARCH}/DxeIpl.efi"
   LzmaCompress -e -o "${BUILD_DIR}/FV/DxeIpl${arch}.z" \
-    "$BUILD_DIR_ARCH/DxeIpl.efi" || exit 1
+    "${BUILD_DIR_ARCH}/DxeIplUe.raw" || exit 1
 
   echo "Generating Loader Image..."
 
@@ -182,12 +184,12 @@ else
     export ARCHS
   fi
 
-  DISCARD_PACKAGES=OpenCorePkg
+  DISCARD_SUBMODULES=OpenCorePkg
   SELFPKG_DIR="OpenCorePkg"
   SELFPKG=OpenDuetPkg
   NO_ARCHIVES=1
 
-  export DISCARD_PACKAGES
+  export DISCARD_SUBMODULES
   export SELFPKG_DIR
   export SELFPKG
   export NO_ARCHIVES
