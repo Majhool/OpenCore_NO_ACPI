@@ -5,6 +5,12 @@ OpenCore Changelog
 - Fixed CPU frequency calculation on AMD 10h family
 - Swapped the position of Shutdown and Restart buttons to better match recent macOS
 - Added `OC_ATTR_USE_REVERSED_UI` to allow access to previous default Shutdown and Restart button arrangement
+- Fixed intro animation getting stuck in OpenCanopy if an entry which returns to menu is selected before animation ends
+- Modified OpenCanopy to require presence of label images only when used due to `OC_ATTR_USE_GENERIC_LABEL_IMAGE`
+- Provided `OC_ATTR_REDUCE_MOTION` to optionally disable non-required OpenCanopy menu animations
+- Modified NVRAM logout hook to handle XML entities in string vars
+- Fixed CPU frequency calculation on AMD 0Fh family
+- Added kext blocker `Exclude` strategy for mkext
 
 #### v0.9.7
 - Updated recovery_urls.txt
