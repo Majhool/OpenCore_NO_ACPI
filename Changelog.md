@@ -11,6 +11,10 @@ OpenCore Changelog
 - Modified NVRAM logout hook to handle XML entities in string vars
 - Fixed CPU frequency calculation on AMD 0Fh family
 - Added kext blocker `Exclude` strategy for mkext
+- Re-enabled AudioDxe failover to protocol GET mode for systems such as Acer E5 where it works when DisconnectHda doesn't
+- Added `FirmwareSettingsEntry.efi` driver which adds menu entry to reboot into UEFI firmware settings
+- Enabled use of picker shortcut keys which are read out in OpenCanopy when using `PickerAudioAssist`
+- Modified builtin picker to avoid responding after audio assist menu to keys pressed while menu is read out
 
 #### v0.9.7
 - Updated recovery_urls.txt
