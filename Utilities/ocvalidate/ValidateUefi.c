@@ -612,31 +612,31 @@ CheckUefiOutput (
   if (IsTextRendererSystem) {
     ConsoleFont = OC_BLOB_GET (&Config->Uefi.Output.ConsoleFont);
     if (ConsoleFont[0] != '\0') {
-      DEBUG ((DEBUG_WARN, "UEFI->Output->ConsoleFont is specified on non-Builtin TextRenderer (currently %a)!\n", TextRenderer));
+      DEBUG ((DEBUG_WARN, "在非内置文本渲染器上指定了UEFI->Output->ConsoleFont (当前为 %a)!\n", TextRenderer));
       ++ErrorCount;
     }
   } else {
     IsClearScreenOnModeSwitchEnabled = Config->Uefi.Output.ClearScreenOnModeSwitch;
     if (IsClearScreenOnModeSwitchEnabled) {
-      DEBUG ((DEBUG_WARN, "UEFI->Output->ClearScreenOnModeSwitch没有在System TextRenderer模式下启用 (当前模式为 %a)!\n", TextRenderer));
+      DEBUG ((DEBUG_WARN, "UEFI->Output->ClearScreenOnModeSwitch没有在System TextRenderer模式下启用 (当前为 %a)!\n", TextRenderer));
       ++ErrorCount;
     }
 
     IsIgnoreTextInGraphicsEnabled = Config->Uefi.Output.IgnoreTextInGraphics;
     if (IsIgnoreTextInGraphicsEnabled) {
-      DEBUG ((DEBUG_WARN, "UEFI->Output->IgnoreTextInGraphics没有在System TextRenderer模式下启用 (当前模式为 %a)!\n", TextRenderer));
+      DEBUG ((DEBUG_WARN, "UEFI->Output->IgnoreTextInGraphics没有在System TextRenderer模式下启用 (当前为 %a)!\n", TextRenderer));
       ++ErrorCount;
     }
 
     IsReplaceTabWithSpaceEnabled = Config->Uefi.Output.ReplaceTabWithSpace;
     if (IsReplaceTabWithSpaceEnabled) {
-      DEBUG ((DEBUG_WARN, "UEFI->Output->ReplaceTabWithSpace没有在System TextRenderer模式下启用 (当前模式为 %a)!\n", TextRenderer));
+      DEBUG ((DEBUG_WARN, "UEFI->Output->ReplaceTabWithSpace没有在System TextRenderer模式下启用 (当前为 %a)!\n", TextRenderer));
       ++ErrorCount;
     }
 
     IsSanitiseClearScreenEnabled = Config->Uefi.Output.SanitiseClearScreen;
     if (IsSanitiseClearScreenEnabled) {
-      DEBUG ((DEBUG_WARN, "UEFI->Output->SanitiseClearScreen没有在System TextRenderer模式下启用 (当前模式为 %a)!\n", TextRenderer));
+      DEBUG ((DEBUG_WARN, "UEFI->Output->SanitiseClearScreen没有在System TextRenderer模式下启用 (当前为 %a)!\n", TextRenderer));
       ++ErrorCount;
     }
   }
