@@ -114,6 +114,27 @@ package() {
   pushd "$1" || exit 1
   rm -rf tmp || exit 1
 
+  # 显示打包进度
+  show_package_progress() {
+    local step=$1
+    local total=$2
+    local current=$3
+    local dots=""
+    local arr=("|" "/" "-" "\\")
+    local index=$((current % 4))
+
+    for ((i=0; i<current; i++)); do
+      dots="$dots."
+    done
+
+    # 使用 stderr 输出进度，避免被重定向
+    printf "\r[%s] 打包中 %s [%d/%d] %s" "${arr[$index]}" "$step" "$current" "$total" "$dots" >&2
+    # 强制刷新输出
+    printf "" >&2
+  }
+
+  # 创建目录
+  echo "创建目录结构..."
   dirs=(
     "tmp/Docs/AcpiSamples"
     "tmp/Utilities"
@@ -139,7 +160,13 @@ package() {
   dstdir="$(pwd)/tmp"
   pushd .. || exit 1
 
+  # 复制 EFI 文件
+  echo "复制 EFI 文件..."
+  local total_steps=8  # 总步骤数
+  local current_step=1
+
   for arch in "${ARCHS[@]}"; do
+    show_package_progress "复制 EFI 文件" $total_steps $current_step
     for dir in "${efidirs[@]}"; do
       mkdir -p "${dstdir}/${arch}/${dir}" || exit 1
     done
@@ -157,6 +184,8 @@ package() {
     printf "%s" "OpenCore" > "${dstdir}/${arch}/EFI/BOOT/.contentFlavour" || exit 1
     printf "%s" "Disabled" > "${dstdir}/${arch}/EFI/BOOT/.contentVisibility" || exit 1
 
+    # 复制工具和驱动
+    show_package_progress "复制工具和驱动" $total_steps $((current_step+1))
     efiTools=(
       "BootKicker.efi"
       "ChipTune.efi"
@@ -240,6 +269,8 @@ package() {
     done
   done
 
+  # 复制文档和编译 ACPI
+  show_package_progress "复制文档和编译 ACPI" $total_steps $((current_step+2))
   docs=(
     "Configuration.pdf"
     "Differences/Differences.pdf"
@@ -261,6 +292,8 @@ package() {
   mv ./*.aml "${dstdir}/Docs/AcpiSamples/Binaries" || exit 1
   cd - || exit 1
 
+  # 复制工具脚本
+  show_package_progress "复制工具脚本" $total_steps $((current_step+3))
   utilScpts=(
     "LegacyBoot"
     "CreateVault"
@@ -273,9 +306,8 @@ package() {
     cp -r "${selfdir}/Utilities/${utilScpt}" "${dstdir}/Utilities"/ || exit 1
   done
 
-  buildutil || exit 1
-
-  # Copy LogoutHook.
+  # 复制 LogoutHook
+  show_package_progress "复制 LogoutHook" $total_steps $((current_step+4))
   mkdir -p "${dstdir}/Utilities/LogoutHook" || exit 1
   logoutFiles=(
     "Launchd.command"
@@ -287,7 +319,8 @@ package() {
     cp "${selfdir}/Utilities/LogoutHook/${file}" "${dstdir}/Utilities/LogoutHook"/ || exit 1
   done
 
-  # Copy OpenDuetPkg booter.
+  # 复制 OpenDuetPkg booter
+  show_package_progress "复制 OpenDuetPkg" $total_steps $((current_step+5))
   for arch in "${ARCHS[@]}"; do
     local tgt
     local booter
@@ -310,7 +343,8 @@ package() {
     fi
   done
 
-  # Copy EFI-era Mac GOP firmware driver.
+  # 复制 EnableGop
+  show_package_progress "复制 EnableGop" $total_steps $((current_step+6))
   eg_ver=$(get_inf_version "${selfdir}/Staging/EnableGop/EnableGop.inf") || exit 1
   egdirect_ver=$(get_inf_version "${selfdir}/Staging/EnableGop/EnableGopDirect.inf") || exit 1
 
@@ -345,7 +379,8 @@ package() {
   done
   cp "${selfdir}/Staging/EnableGop/Release/"* "${dstdir}/Utilities/EnableGop"/ || exit 1
 
-  # Provide EDK-II BaseTools.
+  # 复制 BaseTools
+  show_package_progress "复制 BaseTools" $total_steps $((current_step+7))
   mkdir "${dstdir}/Utilities/BaseTools" || exit 1
   if [ "$(unamer)" = "Windows" ]; then
     cp "${selfdir}/UDK/BaseTools/Bin/Win32/EfiRom.exe" "${dstdir}/Utilities/BaseTools" || exit 1
@@ -355,6 +390,8 @@ package() {
     cp "${selfdir}/UDK/BaseTools/Source/C/bin/GenFfs" "${dstdir}/Utilities/BaseTools" || exit 1
   fi
 
+  # 复制工具和文档
+  show_package_progress "复制工具和文档" $total_steps $((current_step+8))
   utils=(
     "ACPIe"
     "acdtinfo"
@@ -382,6 +419,10 @@ package() {
   # additional docs for ocvalidate.
   cp "${selfdir}/Utilities/ocvalidate/README.md" "${dstdir}/Utilities/ocvalidate"/ || exit 1
 
+  # 构建工具和打包
+  show_package_progress "构建工具和打包" $total_steps $((current_step+9))
+  buildutil || exit 1
+
   pushd "${dstdir}" || exit 1
   zip -qr -FS ../"OpenCore-Mod-${ver}-${2}.zip" ./* || exit 1
   popd || exit 1
@@ -389,6 +430,8 @@ package() {
 
   popd || exit 1
   popd || exit 1
+  printf "\r%s\r" "$(printf ' %.0s' {1..80})"
+  echo "打包完成!"
 }
 
 cd "$(dirname "$0")" || exit 1
@@ -398,11 +441,9 @@ if [ "$ARCHS" = "" ]; then
 fi
 SELFPKG=OpenCorePkg
 NO_ARCHIVES=0
-DISCARD_SUBMODULES=OpenCorePkg
 
 export SELFPKG
 export NO_ARCHIVES
-export DISCARD_SUBMODULES
 
 src=$(curl -LfsS https://gitee.com/btwise/ocbuild/raw/master/efibuild.sh) && eval "$src" || exit 1
 
