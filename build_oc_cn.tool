@@ -125,11 +125,23 @@ package() {
     done
 
     # 使用 stderr 输出进度，避免被重定向
-    printf "\r[%s] 打包中 %s [%d/%d] %s" "${arr[$index]}" "$step" "$current" "$total" "$dots" >&2
-    # 强制刷新输出
-    printf "" >&2
-    # 添加短暂延迟，让动画更流畅
-    sleep 0.1
+    if [ "$current" -eq "$total" ]; then
+      # 最后一步持续显示旋转动画
+      while true; do
+        for ((i=0; i<4; i++)); do
+          printf "\r[%s] %s [%d/%d] %s" "${arr[$i]}" "$step" "$current" "$total" "$dots" >&2
+          printf "" >&2
+          sleep 0.1
+        done
+      done &
+      local spinner_pid=$!
+      return $spinner_pid
+    else
+      # 普通步骤显示一次
+      printf "\r[%s] %s [%d/%d] %s\n" "${arr[$index]}" "$step" "$current" "$total" "$dots" >&2
+      printf "" >&2
+      sleep 0.1
+    fi
   }
 
   # 创建目录
@@ -161,11 +173,12 @@ package() {
 
   # 复制 EFI 文件
   echo "复制 EFI 文件..."
-  local total_steps=10  # 总步骤数
+  local total_steps=11  # 修正总步骤数
   local current_step=1
 
+  # 步骤1: 复制 EFI 文件
+  show_package_progress "复制 EFI 文件" $total_steps $current_step
   for arch in "${ARCHS[@]}"; do
-    show_package_progress "复制 EFI 文件" $total_steps $current_step
     for dir in "${efidirs[@]}"; do
       mkdir -p "${dstdir}/${arch}/${dir}" &>/dev/null || exit 1
     done
@@ -182,9 +195,13 @@ package() {
     cp "${arch}/Bootstrap.efi" "${dstdir}/${arch}/EFI/BOOT/BOOT${suffix}.efi" &>/dev/null || exit 1
     printf "%s" "OpenCore" > "${dstdir}/${arch}/EFI/BOOT/.contentFlavour" || exit 1
     printf "%s" "Disabled" > "${dstdir}/${arch}/EFI/BOOT/.contentVisibility" || exit 1
+  done
+  echo ""
 
-    # 复制工具和驱动
-    show_package_progress "复制工具和驱动" $total_steps $((current_step+1))
+  # 步骤2: 复制工具和驱动
+  current_step=$((current_step+1))
+  show_package_progress "复制工具和驱动" $total_steps $current_step
+  for arch in "${ARCHS[@]}"; do
     efiTools=(
       "BootKicker.efi"
       "ChipTune.efi"
@@ -267,9 +284,11 @@ package() {
       cp "${arch}/${efiDriver}" "${dstdir}/${arch}/EFI/OC/Drivers"/ &>/dev/null || exit 1
     done
   done
+  echo ""
 
-  # 复制文档和编译 ACPI
-  show_package_progress "复制文档和编译 ACPI" $total_steps $((current_step+2))
+  # 步骤3: 复制文档和编译 ACPI
+  current_step=$((current_step+1))
+  show_package_progress "复制文档和编译 ACPI" $total_steps $current_step
   docs=(
     "Configuration.pdf"
     "Differences/Differences.pdf"
@@ -281,9 +300,11 @@ package() {
   done
   cp "${selfdir}/Changelog.md" "${dstdir}/Docs"/ &>/dev/null || exit 1
   cp -r "${selfdir}/Docs/AcpiSamples/"* "${dstdir}/Docs/AcpiSamples"/ &>/dev/null || exit 1
+  echo ""
 
-  # 编译 ACPI 文件
-  show_package_progress "编译 ACPI 文件" $total_steps $((current_step+3))
+  # 步骤4: 编译 ACPI 文件
+  current_step=$((current_step+1))
+  show_package_progress "编译 ACPI 文件" $total_steps $current_step
   mkdir -p "${dstdir}/Docs/AcpiSamples/Binaries" &>/dev/null || exit 1
   pushd "${dstdir}/Docs/AcpiSamples/Source" &>/dev/null || exit 1
   for i in *.dsl ; do
@@ -291,9 +312,11 @@ package() {
   done
   mv ./*.aml "${dstdir}/Docs/AcpiSamples/Binaries" &>/dev/null || exit 1
   popd &>/dev/null || exit 1
+  echo ""
 
-  # 复制工具脚本
-  show_package_progress "复制工具脚本" $total_steps $((current_step+4))
+  # 步骤5: 复制工具脚本
+  current_step=$((current_step+1))
+  show_package_progress "复制工具脚本" $total_steps $current_step
   utilScpts=(
     "LegacyBoot"
     "CreateVault"
@@ -305,9 +328,11 @@ package() {
   for utilScpt in "${utilScpts[@]}"; do
     cp -r "${selfdir}/Utilities/${utilScpt}" "${dstdir}/Utilities"/ &>/dev/null || exit 1
   done
+  echo ""
 
-  # 复制 LogoutHook
-  show_package_progress "复制 LogoutHook" $total_steps $((current_step+5))
+  # 步骤6: 复制 LogoutHook
+  current_step=$((current_step+1))
+  show_package_progress "复制 LogoutHook" $total_steps $current_step
   mkdir -p "${dstdir}/Utilities/LogoutHook" &>/dev/null || exit 1
   logoutFiles=(
     "Launchd.command"
@@ -318,9 +343,11 @@ package() {
   for file in "${logoutFiles[@]}"; do
     cp "${selfdir}/Utilities/LogoutHook/${file}" "${dstdir}/Utilities/LogoutHook"/ &>/dev/null || exit 1
   done
+  echo ""
 
-  # 复制 OpenDuetPkg booter
-  show_package_progress "复制 OpenDuetPkg" $total_steps $((current_step+6))
+  # 步骤7: 复制 OpenDuetPkg booter
+  current_step=$((current_step+1))
+  show_package_progress "复制 OpenDuetPkg" $total_steps $current_step
   for arch in "${ARCHS[@]}"; do
     local tgt
     local booter
@@ -336,9 +363,11 @@ package() {
       cp "${booter_blockio}" "${dstdir}/Utilities/LegacyBoot/boot${arch}-blockio" &>/dev/null || exit 1
     fi
   done
+  echo ""
 
-  # 复制 EnableGop
-  show_package_progress "复制 EnableGop" $total_steps $((current_step+7))
+  # 步骤8: 复制 EnableGop
+  current_step=$((current_step+1))
+  show_package_progress "复制 EnableGop" $total_steps $current_step
   eg_ver=$(get_inf_version "${selfdir}/Staging/EnableGop/EnableGop.inf") || exit 1
   egdirect_ver=$(get_inf_version "${selfdir}/Staging/EnableGop/EnableGopDirect.inf") || exit 1
 
@@ -372,9 +401,11 @@ package() {
     cp "${selfdir}/Staging/EnableGop/${file}" "${dstdir}/Utilities/EnableGop"/ &>/dev/null || exit 1
   done
   cp "${selfdir}/Staging/EnableGop/Release/"* "${dstdir}/Utilities/EnableGop"/ &>/dev/null || exit 1
+  echo ""
 
-  # 复制 BaseTools
-  show_package_progress "复制 BaseTools" $total_steps $((current_step+8))
+  # 步骤9: 复制 BaseTools
+  current_step=$((current_step+1))
+  show_package_progress "复制 BaseTools" $total_steps $current_step
   mkdir "${dstdir}/Utilities/BaseTools" &>/dev/null || exit 1
   if [ "$(unamer)" = "Windows" ]; then
     cp "${selfdir}/UDK/BaseTools/Bin/Win32/EfiRom.exe" "${dstdir}/Utilities/BaseTools" &>/dev/null || exit 1
@@ -383,9 +414,11 @@ package() {
     cp "${selfdir}/UDK/BaseTools/Source/C/bin/EfiRom" "${dstdir}/Utilities/BaseTools" &>/dev/null || exit 1
     cp "${selfdir}/UDK/BaseTools/Source/C/bin/GenFfs" "${dstdir}/Utilities/BaseTools" &>/dev/null || exit 1
   fi
+  echo ""
 
-  # 复制工具和文档
-  show_package_progress "复制工具和文档" $total_steps $((current_step+9))
+  # 步骤10: 复制工具和文档
+  current_step=$((current_step+1))
+  show_package_progress "复制工具和文档" $total_steps $current_step
   utils=(
     "ACPIe"
     "acdtinfo"
@@ -410,10 +443,13 @@ package() {
   cp "${selfdir}/Utilities/macserial/FORMAT.md" "${dstdir}/Utilities/macserial"/ &>/dev/null || exit 1
   cp "${selfdir}/Utilities/macserial/README.md" "${dstdir}/Utilities/macserial"/ &>/dev/null || exit 1
   cp "${selfdir}/Utilities/ocvalidate/README.md" "${dstdir}/Utilities/ocvalidate"/ &>/dev/null || exit 1
+  echo ""
 
-  # 构建工具和打包
-  show_package_progress "构建工具和打包" $total_steps $((current_step+10))
+  # 步骤11: 构建工具和打包
+  current_step=$((current_step+1))
+  spinner_pid=$(show_package_progress "构建工具和打包" $total_steps $current_step)
   buildutil &>/dev/null || exit 1
+  kill $spinner_pid 2>/dev/null
 
   pushd "${dstdir}" &>/dev/null || exit 1
   zip -qr -FS ../"OpenCore-Mod-${ver}-${2}.zip" ./* &>/dev/null || exit 1
