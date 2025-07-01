@@ -37,8 +37,8 @@ jobs:
         run: |
           src=$(/usr/bin/curl -LfsS https://raw.githubusercontent.com/acidanthera/ocbuild/master/ci-bootstrap.sh) && eval "$src" || exit 1
 
-      - run: ./build_duet.tool
-      - run: ./build_oc.tool
+      - run: ./build_duet_en.tool
+      - run: ./build_oc_en.tool
 
       - name: Upload to Artifacts
         uses: actions/upload-artifact@v4
@@ -69,10 +69,10 @@ jobs:
       - name: Use Docker in rootless mode.
         uses: ScribeMD/rootless-docker@0.2.2
 
-      - name: ./build_duet.tool
+      - name: ./build_duet_en.tool
         run: docker compose run build-duet
 
-      - name: ./build_oc.tool
+      - name: ./build_oc_en.tool
         run: docker compose run build-oc
 
       - name: Upload to Artifacts
@@ -96,10 +96,10 @@ jobs:
       - name: Use Docker in rootless mode.
         uses: ScribeMD/rootless-docker@0.2.2
 
-      - name: ./build_duet.tool
+      - name: ./build_duet_en.tool
         run: docker compose run build-duet
 
-      - name: ./build_oc.tool
+      - name: ./build_oc_en.tool
         run: docker compose run build-oc
 
       - name: Upload to Artifacts
@@ -123,10 +123,10 @@ jobs:
       - name: Use Docker in rootless mode.
         uses: ScribeMD/rootless-docker@0.2.2
 
-      - name: ./build_duet.tool
+      - name: ./build_duet_en.tool
         run: docker compose run build-duet
 
-      - name: ./build_oc.tool
+      - name: ./build_oc_en.tool
         run: docker compose run build-oc
 
       - name: Upload to Artifacts
@@ -171,8 +171,8 @@ jobs:
         run: |
           src=$(curl -LfsS https://raw.githubusercontent.com/acidanthera/ocbuild/master/ci-bootstrap.sh) && eval "$src" || exit 1
 
-      - run: ./build_duet.tool
-      - run: ./build_oc.tool
+      - run: ./build_duet_en.tool
+      - run: ./build_oc_en.tool
 
       - name: Upload to Artifacts
         uses: actions/upload-artifact@v4
