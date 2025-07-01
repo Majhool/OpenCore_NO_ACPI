@@ -1,4 +1,3 @@
-#coding:utf-8
 #!/usr/bin/env python3
 
 """
@@ -9,7 +8,7 @@ import re
 import sys
 
 if len(sys.argv) < 2:
-    print('传递文件以检查')
+    print('Please provide a file to check')
     sys.exit(-1)
 
 with open(sys.argv[1], 'r', encoding='utf-8') as f:
@@ -17,12 +16,12 @@ with open(sys.argv[1], 'r', encoding='utf-8') as f:
     content = [line.strip() for line in f.readlines()]
     for index, line in enumerate(content):
         if line == 'OC_SCHEMA':
-            print('检查架构 {}'.format(re.match(r'^\w+', content[index + 1]).group(0)))
+            print('Checking schema {}'.format(re.match(r'^\w+', content[index + 1]).group(0)))
             prev = ''
             continue
         x = re.search(r'"([^"]+)"', line)
         if x:
             if x.group(1) < prev:
-                print(f'错误: {prev} 先于 {x.group(1)}')
+                print(f'Error: {prev} 先于 {x.group(1)}')
                 sys.exit(1)
             prev = x.group(1)
