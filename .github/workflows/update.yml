@@ -23,13 +23,15 @@ jobs:
           # استبدل الرابط التالي برابط مستودع Gitee الأصلي
           GITEE_URL="https://gitee.com/btwise/OpenCorePkg.git"
 
+          BRANCH_NAME="master"
+
           # إعداد معلومات المستخدم لعملية الدفع (Push)
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
           # سحب التحديثات من الفرع الرئيسي (main) في Gitee
           # --allow-unrelated-histories ضروري لأن المستودعين لم ينشآ معًا
-          git pull $GITEE_URL main --allow-unrelated-histories --no-commit
+          git pull $GITEE_URL $BRANCH_NAME --allow-unrelated-histories --no-commit
 
           # التحقق مما إذا كان هناك دمج غير مكتمل
           if [ -f "$(git rev-parse --git-dir)/MERGE_HEAD" ]; then
