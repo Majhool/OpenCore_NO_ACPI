@@ -1,0 +1,43 @@
+name: Sync from Gitee
+
+on:
+  # هذا يسمح لك بتشغيل التحديث يدويًا من تبويب Actions
+  workflow_dispatch:
+
+  # هذا يقوم بتشغيل التحديث تلقائيًا كل 6 ساعات (يمكنك تغيير الرقم)
+  # schedule:
+  #   - cron: '0 */6 * * *'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GitHub Repo
+        uses: actions/checkout@v4
+        with:
+          # نحتاج إلى token لدفع التغييرات إلى المستودع
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull from Gitee and Push to GitHub
+        run: |
+          # استبدل الرابط التالي برابط مستودع Gitee الأصلي
+          GITEE_URL="https://gitee.com/btwise/OpenCorePkg.git"
+
+          # إعداد معلومات المستخدم لعملية الدفع (Push)
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+          # سحب التحديثات من الفرع الرئيسي (main) في Gitee
+          # --allow-unrelated-histories ضروري لأن المستودعين لم ينشآ معًا
+          git pull $GITEE_URL main --allow-unrelated-histories --no-commit
+
+          # التحقق مما إذا كان هناك دمج غير مكتمل
+          if [ -f "$(git rev-parse --git-dir)/MERGE_HEAD" ]; then
+            git merge --abort
+          fi
+
+          # إعادة محاولة السحب مع استراتيجية دمج مختلفة إذا لزم الأمر
+          git pull $GITEE_URL main --allow-unrelated-histories --strategy-option theirs
+
+          # دفع التغييرات إلى GitHub
+          git push
